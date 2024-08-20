@@ -1,0 +1,35 @@
+services:
+  # 定义 LocalStack 服务，用于本地模拟 AWS 环境
+#  localstack:
+#    container_name: localstack  # 容器名称
+#    image: localstack/localstack  # 使用官方 LocalStack 镜像
+#    environment:
+#      - SERVICES=lambda  # 启用 Lambda 服务
+#      - DEFAULT_REGION=us-east-1  # 设置默认 AWS 区域
+#    ports:
+#      - "4566:4566"  # 映射 LocalStack 服务端口
+#    networks:
+#      - lambda-network  # 指定服务连接的网络
+
+  # 定义 Lambda 容器服务
+  lambda:
+    build:
+      context: .  # 使用当前目录作为构建上下文
+      dockerfile: cmd/lambda/hello/Dockerfile  # 使用指定的 Dockerfile
+      args:
+        lambda_name: hello  # 传递构建参数 lambda_name
+    container_name: hello-lambda  # 容器名称
+    ports:
+      - "9000:8080"
+    environment:
+      - AWS_REGION=us-east-1  # 设置 AWS 区域
+      - LOCALSTACK_HOSTNAME=localstack  # 设置 LocalStack 主机名
+      - AWS_ACCESS_KEY_ID=test  # 设置模拟的 AWS Access Key ID
+      - AWS_SECRET_ACCESS_KEY=test  # 设置模拟的 AWS Secret Access Key
+    networks:
+      - lambda-network  # 指定服务连接的网络
+
+# 定义 Docker Compose 使用的网络
+networks:
+  lambda-network:
+    driver: bridge  # 使用 bridge 网络驱动
